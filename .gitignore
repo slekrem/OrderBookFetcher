@@ -1,0 +1,5 @@
+/bin
+*.Development.json
+/logs
+/obj
+*.db
