@@ -6,7 +6,7 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 # Variables
-REPO_URL="https://github.com/<your-username>/OrderBookFetcher.git"
+REPO_URL="https://github.com/slekrem/OrderBookFetcher.git"
 INSTALL_DIR="/home/$(whoami)/OrderBookFetcher"
 SERVICE_NAME="orderbookfetcher.service"
 UBUNTU_VERSION=$(lsb_release -rs)
