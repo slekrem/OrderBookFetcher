@@ -6,9 +6,10 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 # Variables
-REPO_URL="https://github.com/slekrem/OrderBookFetcher.git"
+REPO_URL="https://github.com/<your-username>/OrderBookFetcher.git"
 INSTALL_DIR="/home/$(whoami)/OrderBookFetcher"
 SERVICE_NAME="orderbookfetcher.service"
+UBUNTU_VERSION=$(lsb_release -rs)
 
 # Function to check exit code
 check_status() {
@@ -26,15 +27,25 @@ sudo apt-get update && sudo apt-get upgrade -y
 check_status "System update"
 
 # Add Microsoft package source for .NET SDK
-echo "Adding Microsoft package source for .NET SDK 9.0..."
-wget https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+echo "Adding Microsoft package source for .NET SDK 9.0 (Ubuntu $UBUNTU_VERSION)..."
+wget "https://packages.microsoft.com/config/ubuntu/$UBUNTU_VERSION/packages-microsoft-prod.deb" -O packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb
 rm packages-microsoft-prod.deb
 check_status "Adding Microsoft package source"
 
 sudo apt-get update
-sudo apt-get install -y dotnet-sdk-9.0 git sqlite3
-check_status "Installation of .NET 9.0, Git, and SQLite"
+sudo apt-get install -y dotnet-sdk-9.0 git sqlite3 || {
+    echo -e "${RED}Failed to install dotnet-sdk-9.0. Checking availability...${NC}"
+    apt search dotnet-sdk
+    echo -e "${RED}If dotnet-sdk-9.0 is not listed, it may not be available yet for Ubuntu $UBUNTU_VERSION.${NC}"
+    echo "Falling back to manual installation option..."
+    wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
+    chmod +x dotnet-install.sh
+    ./dotnet-install.sh --version latest
+    export PATH="$HOME/.dotnet:$PATH"
+    dotnet --version
+    check_status "Manual .NET installation"
+}
 
 # Check .NET version
 echo "Installed .NET version:"
