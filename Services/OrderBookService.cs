@@ -51,9 +51,17 @@ public class OrderBookService : BackgroundService
 
         var tasks = _endpoints.Select(endpoint => FetchOrderBookAsync(endpoint.Exchange, endpoint.Url, dbContext));
         await Task.WhenAll(tasks);
-
-        await dbContext.SaveChangesAsync();
-        Log.Information("Order books fetched and stored at {Timestamp}", DateTime.UtcNow);
+        var driveInfo = new DriveInfo(Path.GetPathRoot(Environment.CurrentDirectory));
+        if (driveInfo.AvailableFreeSpace < 100 * 1024 * 1024) // 100 MB threshold
+        {
+            Log.Warning("Low disk space. Available: {AvailableFreeSpace} bytes", driveInfo.AvailableFreeSpace);
+            return;
+        }
+        else
+        {
+            await dbContext.SaveChangesAsync();
+            Log.Information("Order books fetched and stored at {Timestamp}", DateTime.UtcNow);
+        }
     }
 
     private async Task FetchOrderBookAsync(string exchange, string url, OrderBookContext dbContext)
