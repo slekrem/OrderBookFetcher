@@ -1,7 +1,8 @@
 /bin
-*.Development.json
 /logs
 /obj
+/publish
+*.Development.json
 *.db
 *.db-shm
 *.db-wal
